@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 
 /**
  * Notification manager class.
@@ -38,10 +40,36 @@ public class UnityGCMNotificationManager {
 		Log.v(TAG, "showNotification");
 		
 		// Intent 
-		Intent intent = new Intent(context, UnityPlayerProxyActivity.class);
+		Intent intent = null;
+		String launchActivityName = null;
+		
+		// load activity name form AndroidManifest
+		ApplicationInfo appliInfo = null;
+		try {
+		    appliInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+		    launchActivityName = appliInfo.metaData.getString("GCM_PLUGIN_LAUNCH_ACTIVITY");
+		} catch (Exception e) {
+			Log.v(TAG, "Failed to read metadata");
+			
+		}
+		
+		// create intent form activity name
+		if (launchActivityName != null)
+		{
+			try{
+				intent = new Intent(context, Class.forName(launchActivityName));
+			}catch(Exception e){
+				Log.v(TAG, "Failed to issue Intent from launch activity name");
+			}
+		}
+		
+		if(intent == null){
+			intent = new Intent(context, UnityPlayerProxyActivity.class);
+		}
+		
 		PendingIntent contentIntent = PendingIntent.getActivity(context, REQUEST_CODE_UNITY_ACTIVITY, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		
-		//　Show notification in status bar
+		// Show notification in status bar
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext());
 		builder.setContentIntent(contentIntent);
 		builder.setTicker(ticker);

@@ -59,6 +59,8 @@
             </intent-filter>
         </receiver>
         <service android:name="com.kskkbys.unitygcmplugin.UnityGCMIntentService" />
+        <!-- Set launch Activity from status bar -->
+        <meta-data android:name="GCM_PLUGIN_LAUNCH_ACTIVITY" android:value="com.unity3d.player.UnityPlayerProxyActivity" />
         <!-- Android GCM Plugin -->
 
     </application>
